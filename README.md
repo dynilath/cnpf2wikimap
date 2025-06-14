@@ -180,16 +180,16 @@ pnpm run serve
 1. **使用 Map-Debug 组件**
    在 PF2E Wiki 页面中添加以下代码：
    ```mediawiki
-    <div class="w-[600px] h-auto p-4 bg-gray-100 border border-gray-300 rounded">{{Map-Debug
-    | tileTemplate = 内海地图-$x-$y-$z.png
-    | tileSize = 500,500
-    | tileBaseZoom = 3
-    | bounds = 3264,4183
-    | zoomRange = 1,3
-    | marker = data:内海地图.json
-    | style = height:400px;
-    | initLoc = 艾巴萨罗姆
-    | zoom = 3
+    <div class="w-fit h-fit p-4 bg-gray-100 border border-gray-300 rounded">{{Map-Debug
+        | tileTemplate = 内海地图-$x-$y-$z.png
+        | tileSize = 500,500
+        | tileBaseZoom = 3
+        | bounds = 3264,4183
+        | zoomRange = 1,3
+        | marker = data:内海地图.json
+        | style = width:600px; height:400px;
+        | initLoc = 艾巴萨罗姆
+        | zoom = 3
     }}</div>
    ```
 
