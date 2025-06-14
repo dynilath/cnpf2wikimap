@@ -27,19 +27,20 @@
     "cross-env": "^7.0.3",
     "rollup": "^4.21.0",
     "rollup-plugin-banner2": "^1.2.2",
+    "rollup-plugin-copy": "^3.5.0",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3"
+    "@rollup/plugin-replace": "^6.0.2",
+    "leaflet": "^1.9.4",
+    "leaflet-contextmenu": "^1.4.0",
+    "leaflet-easybutton": "^2.4.0",
+    "typescript": "^5.8.3",
+    "types-mediawiki": "^1.10.1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dynilath/cnpf2wikimap.git"
   },
   "dependencies": {
-    "@rollup/plugin-replace": "^6.0.2",
-    "leaflet": "^1.9.4",
-    "leaflet-contextmenu": "^1.4.0",
-    "leaflet-easybutton": "^2.4.0",
-    "md5": "^2.3.0",
-    "types-mediawiki": "^1.10.1"
+    "md5": "^2.3.0"
   }
 }

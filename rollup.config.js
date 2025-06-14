@@ -4,6 +4,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import terser from "@rollup/plugin-terser";
 import replace from "@rollup/plugin-replace";
+import copy from "rollup-plugin-copy";
 import fs from "fs";
 import { createBanner } from "./script/banner.js";
 
@@ -35,6 +36,9 @@ export default defineConfig({
     replace({
       preventAssignment: true,
       __MAP_CLASS__: JSON.stringify(isProduction ? ".interactive-map" : ".interactive-map-debug"),
+    }),
+    copy({
+      targets: [{ src: "resource/*", dest: "public" }],
     }),
     isProduction &&
       terser({
