@@ -1,6 +1,6 @@
 # CN PF2 Wiki Map
 
-[![CI](https://github.com/dynilath/cnpf2wikimap/actions/workflows/ci.yml/badge.svg)](https://github.com/dynilath/cnpf2wikimap/actions/workflows/ci.yml)
+[![CI](https://github.com/dynilath/cnpf2wikimap/workflows/basic-checks/badge.svg)](https://github.com/dynilath/cnpf2wikimap/actions/workflows/ci.yml)
 
 一个基于 Leaflet 的交互式地图系统，专为 Pathfinder 2e 中文 Wiki 设计。
 
