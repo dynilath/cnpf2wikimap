@@ -1,5 +1,7 @@
 # CN PF2 Wiki Map
 
+[![CI](https://github.com/dynilath/cnpf2wikimap/actions/workflows/ci.yml/badge.svg)](https://github.com/dynilath/cnpf2wikimap/actions/workflows/ci.yml)
+
 一个基于 Leaflet 的交互式地图系统，专为 Pathfinder 2e 中文 Wiki 设计。
 
 ## 开发环境设置
@@ -23,7 +25,7 @@ pnpm run serve
 
 ### 前置要求
 
-- Node.js (推荐 18+ 版本)
+- Node.js 22+ (推荐最新LTS版本)
 - pnpm (包管理器)
 
 ### 安装依赖
@@ -76,6 +78,17 @@ pnpm run serve
    ```bash
    pnpm run type-check
    ```
+
+### 持续集成
+
+项目使用 GitHub Actions 进行自动化CI检查：
+
+- **触发时机**: 所有推送到主分支和 Pull Request
+- **检查内容**: 
+  - TypeScript 类型检查 (`pnpm run type-check`)
+  - 开发构建验证 (`pnpm run build:dev`)
+- **运行环境**: Node.js 22.x, Ubuntu Latest
+- **状态查看**: 查看项目主页的 CI 徽章或 [Actions 页面](https://github.com/dynilath/cnpf2wikimap/actions)
 
 ### 构建过程
 
