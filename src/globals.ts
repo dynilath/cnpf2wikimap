@@ -17,30 +17,38 @@ export function parseNumPairParam (param: string): number[] {
  * 转义输入文本，处理内链和换行
  */
 export function escapeInput (input: string): string {
-  return $('<span/>')
-    .text(input)
-    .wrap('<span/>')
-    .parent()
-    .text()
-    .replace(/\[\[(.+?)\]\]/g, (_, p1) => {
-      const result = /([^\|]+)\|(.+)/.exec(p1);
-      if (result === null) {
-        return $('<a/>')
-          .attr('href', '/wiki/' + p1)
-          .text(p1)
-          .wrap('<span/>')
-          .parent()
-          .html();
-      } else {
-        return $('<a/>')
-          .attr('href', '/wiki/' + result[1])
-          .text(result[2])
-          .wrap('<span/>')
-          .parent()
-          .html();
-      }
-    })
-    .replace(/\n/g, '<br/>');
+  // 首先转义 HTML 特殊字符
+  const escapeHtml = (text: string): string => {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  };
+
+  // 创建链接元素的辅助函数
+  const createLink = (href: string, text: string): string => {
+    const link = document.createElement('a');
+    link.href = '/wiki/' + href;
+    link.textContent = text;
+    return link.outerHTML;
+  };
+
+  // 转义 HTML 特殊字符
+  let escaped = escapeHtml(input);
+
+  // 处理内链 [[页面|显示文本]] 或 [[页面]]
+  escaped = escaped.replace(/\[\[(.+?)\]\]/g, (_, p1) => {
+    const result = /([^\|]+)\|(.+)/.exec(p1);
+    if (result === null) {
+      // 简单链接 [[页面]]
+      return createLink(p1, p1);
+    } else {
+      // 带显示文本的链接 [[页面|显示文本]]
+      return createLink(result[1], result[2]);
+    }
+  });
+
+  // 处理换行
+  return escaped.replace(/\n/g, '<br/>');
 }
 
 /**
