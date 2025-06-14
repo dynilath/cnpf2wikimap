@@ -18,7 +18,7 @@ export default defineConfig({
     format: "iife",
     name: "InteractiveMap",
     sourcemap: isProduction ? false : "inline",
-    banner: `${createBanner(pkg.name, pkg.version, pkg.repository)}//<nowiki>`,
+    banner: `${createBanner(pkg.name, pkg.version, pkg.repository.url)}//<nowiki>`,
     footer: `\n//</nowiki>\n`,
   },
   external: ["L", "mediaWiki", "jQuery"],
@@ -34,7 +34,7 @@ export default defineConfig({
     }),
     replace({
       preventAssignment: true,
-      __MAP_CLASS__: JSON.stringify(isProduction ? ".interactive-map": ".interactive-map-debug"),
+      __MAP_CLASS__: JSON.stringify(isProduction ? ".interactive-map" : ".interactive-map-debug"),
     }),
     isProduction &&
       terser({
