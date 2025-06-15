@@ -21,6 +21,7 @@
     "globals.d.ts",
     "./node_modules/types-mediawiki",
     "./node_modules/@types/leaflet/index.d.ts",
+    "./node_modules/@types/leaflet-contextmenu/index.d.ts",
     "./node_modules/leaflet-easybutton/src/easy-button.d.ts"
   ],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]

@@ -33,12 +33,18 @@ importers:
       '@types/leaflet':
         specifier: ^1.9.18
         version: 1.9.18
+      '@types/leaflet-contextmenu':
+        specifier: ^1.4.3
+        version: 1.4.3
       '@types/node':
         specifier: ^24.0.1
         version: 24.0.1
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
+      eventemitter3:
+        specifier: ^5.0.1
+        version: 5.0.1
       http-server:
         specifier: ^14.1.1
         version: 14.1.1
@@ -281,6 +287,9 @@ packages:
   '@types/jquery@3.5.32':
     resolution: {integrity: sha512-b9Xbf4CkMqS02YH8zACqN1xzdxc3cO735Qe5AbSUFmyOiaWAbcpqh9Wna+Uk0vgACvoQHpWDg2rGdHkYPLmCiQ==}
 
+  '@types/leaflet-contextmenu@1.4.3':
+    resolution: {integrity: sha512-S2FCwMDtgyuykW9tZ0Wg99FDDdtpoMhmoqGgbrqXvMlQ2Yfl7ZuHJqcmvLZznr48pZjfPuvdkeGzcGkIM3ihYg==}
+
   '@types/leaflet@1.9.18':
     resolution: {integrity: sha512-ht2vsoPjezor5Pmzi5hdsA7F++v5UGq9OlUduWHmMZiuQGIpJ2WS5+Gg9HaAA79gNh1AIPtCqhzejcIZ3lPzXQ==}
 
@@ -426,6 +435,9 @@ packages:
 
   eventemitter3@4.0.7:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
+
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
   fast-glob@3.3.3:
     resolution: {integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==}
@@ -981,6 +993,10 @@ snapshots:
     dependencies:
       '@types/sizzle': 2.3.9
 
+  '@types/leaflet-contextmenu@1.4.3':
+    dependencies:
+      '@types/leaflet': 1.9.18
+
   '@types/leaflet@1.9.18':
     dependencies:
       '@types/geojson': 7946.0.16
@@ -1105,6 +1121,8 @@ snapshots:
   estree-walker@2.0.2: {}
 
   eventemitter3@4.0.7: {}
+
+  eventemitter3@5.0.1: {}
 
   fast-glob@3.3.3:
     dependencies:
