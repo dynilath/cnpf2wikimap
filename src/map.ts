@@ -149,7 +149,7 @@ export async function initMap (element: HTMLElement) {
   control.showMarkers();
 
   if (markerLoc) {
-    console.log(`设置地图初始位置: ${mapInfo.initLoc} - ${markerLoc} (${mapInfo.initZoom})`);
+    console.log(`设置地图初始位置: ${mapInfo.initLoc} - ${markerLoc} - Zoom=${mapInfo.initZoom}`);
     map.setView(markerLoc, mapInfo.initZoom);
   }
 

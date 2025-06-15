@@ -20,5 +20,5 @@ waitForLeaflet()
     });
   })
   .catch(error => {
-    console.error('Error initializing interactive map:', error);
+    console.error('加载 Leaflet 失败:', error);
   });

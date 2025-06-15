@@ -1,5 +1,6 @@
 /// <reference types="leaflet" />
 /// <reference types="leaflet-easybutton" />
+/// <reference types="leaflet-contextmenu" />
 
 type LeafletInstance = typeof window.L;
 

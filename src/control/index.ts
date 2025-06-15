@@ -44,7 +44,7 @@ export class MapController {
       return;
     }
 
-    console.log('更新标记: old=', JSON.stringify(rold.info), ' updated=', JSON.stringify(updated));
+    console.log('更新标记:', `old=${JSON.stringify(rold.info)}`, `updated=${JSON.stringify(updated)}`);
     updateMarker(rold, updated, this.mapInfo);
     this.enableSaveButton(true);
   }

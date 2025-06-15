@@ -7,7 +7,7 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
   const formTag = h('input', {
     id: 'markerTag',
     className: 'form-control',
-    placeholder: '此处输入标记标签，此标签用于地图自动定位',
+    placeholder: '此处输入标记标签。此标签用于地图自动定位。',
     textContent: initInfo.tag || '',
   });
 
@@ -15,7 +15,7 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
     id: 'markerImage',
     type: 'text',
     className: 'form-control',
-    placeholder: '请输入完整图片名，如"我的图片.png"，留空则使用默认标记',
+    placeholder: '此处输入图片名，如"我的图片.png"，不要包含“File:”前缀。留空则使用默认标记。',
     value: initInfo.markerImage || '',
   });
 
@@ -23,7 +23,7 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
     id: 'markerTooltip',
     className: 'form-control',
     rows: 5,
-    placeholder: '此处输入描述文字，文字中可以使用简单的内链，如[[XXX|XX]]和[[XXX]]',
+    placeholder: '此处输入描述文字。文字中可以使用简单的内链，如[[XXX|XX]]和[[XXX]]。',
     textContent: initInfo.tooltip || '',
   });
 
@@ -44,7 +44,12 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
             h(
               'form',
               {},
-              h('div', { className: 'form-group' }, `X: ${initInfo.coords?.x}, Y: ${initInfo.coords?.y}`),
+              h(
+                'div',
+                { className: 'form-group' },
+                h('label', { for: 'markerTag', className: 'form-control-label' }, '地图标记坐标：'),
+                `{ X: ${initInfo.coords?.x}, Y: ${initInfo.coords?.y} }`
+              ),
               h(
                 'div',
                 { className: 'form-group' },
@@ -54,7 +59,7 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
               h(
                 'div',
                 { className: 'form-group' },
-                h('label', { for: 'markerImage', className: 'form-control-label' }, '地图标记图片名：'),
+                h('label', { for: 'markerImage', className: 'form-control-label' }, '地图标记图片文件名：'),
                 formImage
               ),
               h(
