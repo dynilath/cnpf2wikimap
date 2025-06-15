@@ -12,13 +12,12 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
-    "allowUmdGlobalAccess": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/**/*",
+    "src/**/*.ts",
     "globals.d.ts",
     "./node_modules/types-mediawiki",
     "./node_modules/@types/leaflet/index.d.ts",
