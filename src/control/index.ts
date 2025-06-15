@@ -117,13 +117,13 @@ export class MapController {
     }
   }
 
-  enableMarkerMove () {
+  enableMarkerDrag () {
     for (const { marker } of this.markers) {
       marker.dragging?.enable();
     }
   }
 
-  disableMarkerMove () {
+  disableMarkerDrag () {
     for (const { marker } of this.markers) {
       marker.dragging?.disable();
     }

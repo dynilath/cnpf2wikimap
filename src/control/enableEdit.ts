@@ -3,7 +3,7 @@ import { MapInfoDetail } from '../types';
 import { leaflet } from '../env';
 import { MapController } from '.';
 
-function createSaveEditButton (map: Map, mapInfo: MapInfoDetail, control: MapController) {
+export function createSaveEditButton (map: Map, mapInfo: MapInfoDetail, control: MapController) {
   return leaflet().easyButton({
     position: 'topright',
     states: [
@@ -27,7 +27,7 @@ export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: M
         title: '启用编辑模式',
         onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
           control.enableContextMenu();
-          control.enableMarkerMove();
+          control.enableMarkerDrag();
 
           control.showSaveButton(() => createSaveEditButton(map, mapInfo, control));
 
@@ -40,7 +40,7 @@ export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: M
         title: '关闭编辑模式',
         onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
           control.disableContextMenu();
-          control.disableMarkerMove();
+          control.disableMarkerDrag();
 
           control.removeSaveButton();
 
