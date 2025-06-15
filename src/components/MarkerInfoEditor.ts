@@ -1,7 +1,7 @@
 import { MarkerInfo } from '../types';
 import { h } from './h';
 
-export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInfo> {
+export function createMarkerDetailEditor (initInfo: MarkerInfo): Promise<MarkerInfo> {
   const result = { ...initInfo };
 
   const formTag = h('input', {
@@ -88,8 +88,8 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
                 result.tooltip = tooltip || undefined;
 
                 resolve(result);
-                el.classList.add('fade');
-                setTimeout(() => el.remove(), 1000);
+                el.addEventListener('transitionend', () => el.remove());
+                ($(el) as any).modal('hide');
               },
             }),
             h('button', {
@@ -97,16 +97,16 @@ export function createMarkerInfoEditor (initInfo: MarkerInfo): Promise<MarkerInf
               className: 'btn btn-secondary',
               textContent: '关闭',
               onclick: () => {
-                el.classList.add('fade');
-                setTimeout(() => el.remove(), 1000);
+                el.addEventListener('transitionend', () => el.remove());
+                ($(el) as any).modal('hide');
               },
             })
           )
         )
       )
     );
+
     document.body.appendChild(el);
-    el.classList.remove('fade');
-    el.classList.add('show');
+    ($(el) as any).modal('show');
   });
 }

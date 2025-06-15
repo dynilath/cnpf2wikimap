@@ -9,7 +9,7 @@ export function h<key extends keyof HTMLElementTagNameMap> (
     type?: string;
     [key: string]: any; // 允许其他属性
   } = {},
-  ...children: (string | HTMLElement)[]
+  ...children: (string | HTMLElement | undefined)[]
 ): HTMLElementTagNameMap[key] {
   const el = document.createElement(tag);
   const _attrs = { ...attrs };

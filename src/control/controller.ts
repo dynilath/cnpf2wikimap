@@ -2,7 +2,9 @@ import type { Map, Control, Marker } from 'leaflet';
 import { MapInfoDetail, MarkerInfo, MarkerWithInfo, Point } from '../types';
 import { MapEvents } from './events';
 import { createMarker, updateMarker } from '../marker';
-import { createMarkerInfoEditor } from '../components/MarkerInfoEditor';
+import { createMarkerDetailEditor } from '../components/MarkerInfoEditor';
+import { ApiService } from '../services/ApiService';
+import { showInfo } from '../components/info';
 
 export class MapController {
   private contextMenuEnabled = false;
@@ -24,12 +26,35 @@ export class MapController {
 
     events.on('enableEdit', () => this._enableEditing());
     events.on('disableEdit', () => this._disableEditing());
+    events.on('saveEdit', () => this._saveEdit());
+
     events.on('hideMarkers', () => this._hideMarkers());
     events.on('showMarkers', () => this._showMarkers());
   }
 
+  private async _saveEdit () {
+    const result = await showInfo({ title: '确认保存标记修改？', buttons: { confirm: '保存', cancel: '取消' } });
+    if (result.confirm) {
+      const info = this.markers.reduce((pv, m) => {
+        pv.push(m.info);
+        return pv;
+      }, [] as MarkerInfo[]);
+      console.log('保存标记: ', info);
+      try {
+        await ApiService.savePageContent(this.events.info.markerSource, JSON.stringify({ markers: info }));
+      } catch (e) {
+        console.error('保存标记失败: ', e);
+        showInfo({ title: '保存标记失败', info: `${e?.message ?? e}`, buttons: { confirm: '确定' } });
+        return;
+      }
+
+      showInfo({ title: '标记已保存', buttons: { confirm: '确定' } });
+      this._enableSaveButton(false);
+    }
+  }
+
   private async _editMarker (info: MarkerInfo, _marker?: Marker) {
-    const inputs = await createMarkerInfoEditor(info);
+    const inputs = await createMarkerDetailEditor(info);
 
     if (_marker) {
       this._updateMarker(_marker, inputs);
@@ -40,6 +65,8 @@ export class MapController {
       maker.marker.dragging?.enable();
 
       console.log('添加新标记: ', JSON.stringify(maker.info));
+
+      this._enableSaveButton(true);
     }
   }
 

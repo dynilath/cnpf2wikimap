@@ -1,6 +1,21 @@
 import { h } from './h';
 
-export async function showInfo (info: string | HTMLElement): Promise<void> {
+interface InfoResult {
+  confirm?: boolean;
+  cancel?: boolean;
+}
+
+interface InfoOptions {
+  info?: string | HTMLElement;
+  title?: string | HTMLElement;
+  buttons?: { confirm?: string; cancel?: string };
+}
+
+export async function showInfo (options: InfoOptions): Promise<InfoResult> {
+  if (!options || (!options.info && !options.title)) {
+    throw new Error('showInfo: options must contain either info or title');
+  }
+
   return new Promise(resolve => {
     const el = h(
       'div',
@@ -11,8 +26,18 @@ export async function showInfo (info: string | HTMLElement): Promise<void> {
         h(
           'div',
           { className: 'modal-content' },
-          h('div', { className: 'modal-header' }, h('h3', {}, '信息')),
-          h('div', { className: 'modal-body' }, typeof info === 'string' ? h('p', {}, info) : info),
+          options.title &&
+            h(
+              'div',
+              { className: 'modal-header' },
+              typeof options.title === 'string' ? h('h3', {}, options.title) : options.title
+            ),
+          options.info &&
+            h(
+              'div',
+              { className: 'modal-body' },
+              typeof options.info === 'string' ? h('p', {}, options.info) : options.info
+            ),
           h(
             'div',
             { className: 'modal-footer' },
@@ -20,24 +45,35 @@ export async function showInfo (info: string | HTMLElement): Promise<void> {
               'button',
               {
                 type: 'button',
-                className: 'btn btn-secondary',
+                className: 'btn btn-primary',
                 onclick: () => {
-                  resolve();
-                  el.classList.remove('show');
-                  setTimeout(() => {
-                    el.remove();
-                  }, 300);
+                  resolve({ confirm: true });
+                  el.addEventListener('transitionend', () => el.remove());
+                  ($(el) as any).modal('hide');
                 },
               },
-              '关闭'
-            )
+              options?.buttons.confirm || '确认'
+            ),
+            options?.buttons.cancel &&
+              h(
+                'button',
+                {
+                  type: 'button',
+                  className: 'btn btn-secondary',
+                  onclick: () => {
+                    resolve({ cancel: true });
+                    el.addEventListener('transitionend', () => el.remove());
+                    ($(el) as any).modal('hide');
+                  },
+                },
+                options.buttons.cancel
+              )
           )
         )
       )
     );
 
     document.body.appendChild(el);
-    el.classList.add('show');
-    el.classList.remove('fade');
+    ($(el) as any).modal('show');
   });
 }

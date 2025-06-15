@@ -49,6 +49,11 @@ async function requestWithCallback<T = any> (queryData: ApiQueryData, reqType: '
     }
 
     const data = await response.json();
+
+    if (data.error) {
+      throw new Error(`API error: ${data.error.code} - ${data.error.info}`);
+    }
+
     return data;
   } catch (error) {
     console.error('请求过程中出现错误！', error);
@@ -59,11 +64,11 @@ async function requestWithCallback<T = any> (queryData: ApiQueryData, reqType: '
 /**
  * API 服务类 - 处理与后端的通信
  */
-export class ApiService {
+export const ApiService = {
   /**
    * 获取图片信息
    */
-  static async getImageInfo (imageName: string | string[]): Promise<any> {
+  getImageInfo: async (imageName: string | string[]): Promise<any> => {
     const fName = n => `File:${n}`;
     const titles = Array.isArray(imageName) ? imageName.map(fName).join('|') : fName(imageName);
 
@@ -75,13 +80,13 @@ export class ApiService {
       formatversion: '2',
       iiprop: API_CONFIG.IMAGE_INFO_PROPS,
     });
-  }
+  },
 
   /**
    * 获取页面内容
    * @param pageName 页面名称
    */
-  static async getPageContent (pageName: string): Promise<any> {
+  getPageContent: async (pageName: string): Promise<any> => {
     return requestWithCallback({
       action: 'query',
       format: 'json',
@@ -91,7 +96,7 @@ export class ApiService {
       rvprop: API_CONFIG.REVISION_PROPS,
       rvlimit: API_CONFIG.REVISION_LIMIT,
     });
-  }
+  },
 
   /**
    * 获取页面的 JSON 数据
@@ -100,7 +105,7 @@ export class ApiService {
    *
    * 注意：此方法与 getPageContent 类似，但返回的数据格式为 JSON。
    */
-  static async getPageJSON (pageName: string): Promise<any> {
+  getPageJSON: async (pageName: string): Promise<any> => {
     const response = await requestWithCallback({
       action: 'query',
       format: 'json',
@@ -117,12 +122,12 @@ export class ApiService {
     }
     const data = JSON.parse(page.revisions[0].content);
     return data;
-  }
+  },
 
   /**
    * 保存页面内容
    */
-  static async savePageContent (pageName: string, content: string, summary: string = '更新地图标记信息'): Promise<any> {
+  savePageContent: async (pageName: string, content: string, summary: string = '更新地图标记信息'): Promise<any> => {
     return requestWithCallback(
       {
         format: 'json',
@@ -136,5 +141,5 @@ export class ApiService {
       },
       'POST'
     );
-  }
-}
+  },
+};
