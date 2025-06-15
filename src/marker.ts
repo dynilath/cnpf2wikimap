@@ -103,24 +103,21 @@ export function createMarker (info: MarkerInfo, events: MapEvents): MarkerWithIn
       {
         text: '<i class="fa fa-pencil-square" aria-hidden="true"/>&ensp;编辑标记',
         callback: e => {
-          events.emit('editMarker', { marker, info });
+          events.emit('editMarker', marker);
         },
       },
       {
         text: '<i class="fa fa-trash" aria-hidden="true"/>&ensp;删除标记',
         callback: e => {
-          events.emit('removeMarker', { marker, info });
+          events.emit('removeMarker', marker);
         },
       },
     ],
   } as MarkerOptions) as Marker;
 
   marker.on('dragend', e => {
-    const newCoords = events.info.coord2point((e.target as Marker).getLatLng());
-    events.emit('updateMarker', {
-      old: { marker, info },
-      updated: { ...info, coords: newCoords },
-    });
+    const coord = events.info.coord2point((e.target as Marker).getLatLng());
+    events.emit('dragMarker', { marker, coord });
   });
 
   IconService.getMarkerIcon(info).then(icon => {

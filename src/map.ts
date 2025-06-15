@@ -130,7 +130,7 @@ export async function initMap (element: HTMLElement) {
         text: '<i class="fa fa-plus-circle" aria-hidden="true"/>&ensp;添加标记',
         callback: function (event) {
           const point = mapInfo.coord2point(event.latlng);
-          events.emit('startNewMarker', point);
+          events.emit('newMarker', point);
         },
       },
     ],

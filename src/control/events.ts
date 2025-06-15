@@ -1,11 +1,12 @@
 import EventEmitter from 'eventemitter3';
-import { MapInfoDetail, MarkerInfo, MarkerWithInfo, Point } from '../types';
+import { MapInfoDetail, Point } from '../types';
+import type { Marker } from 'leaflet';
 
 type EventMap = {
-  removeMarker: [MarkerWithInfo];
-  updateMarker: [{ old: MarkerWithInfo; updated: MarkerInfo }];
-  startNewMarker: [Point];
-  editMarker: [MarkerWithInfo];
+  removeMarker: [Marker];
+  dragMarker: [{ marker: Marker; coord: Point }];
+  newMarker: [Point];
+  editMarker: [Marker];
 
   enableEdit: [];
   disableEdit: [];

@@ -20,9 +20,9 @@ export class MapController {
     };
 
     events.on('removeMarker', e => this._removeMarker(e));
-    events.on('updateMarker', e => this._updateMarker(e.old.marker, e.updated));
-    events.on('startNewMarker', e => this._editMarker({ coords: e }));
-    events.on('editMarker', e => this._editMarker(e.info, e.marker));
+    events.on('dragMarker', e => this._dragMarker(e.marker, e.coord));
+    events.on('newMarker', e => this._newMarker(e));
+    events.on('editMarker', e => this._editMarker(e));
 
     events.on('enableEdit', () => this._enableEditing());
     events.on('disableEdit', () => this._disableEditing());
@@ -53,42 +53,50 @@ export class MapController {
     }
   }
 
-  private async _editMarker (info: MarkerInfo, _marker?: Marker) {
-    const inputs = await createMarkerDetailEditor(info);
+  private async _newMarker (coords: Point) {
+    const inputs = await createMarkerDetailEditor({ coords });
+    const maker = await createMarker(inputs, this.events);
+    this.markers.push(maker);
+    maker.marker.addTo(this.map);
+    maker.marker.dragging?.enable();
 
-    if (_marker) {
-      this._updateMarker(_marker, inputs);
-    } else {
-      const maker = await createMarker(inputs, this.events);
-      this.markers.push(maker);
-      maker.marker.addTo(this.map);
-      maker.marker.dragging?.enable();
-
-      console.log('添加新标记: ', JSON.stringify(maker.info));
-
-      this._enableSaveButton(true);
-    }
+    console.log('新增标记: ', JSON.stringify(maker.info));
+    this._enableSaveButton(true);
   }
 
-  private _updateMarker (target: Marker, updated: MarkerInfo) {
+  private async _editMarker (marker: Marker) {
+    const rold = this.markers.find(m => m.marker === marker);
+    if (!rold) {
+      return;
+    }
+    const inputs = await createMarkerDetailEditor(rold.info);
+    console.log('编辑标记:', `old=${JSON.stringify(rold.info)}`, `updated=${JSON.stringify(inputs)}`);
+    updateMarker(rold, inputs, this.events.info);
+    this._enableSaveButton(true);
+  }
+
+  private _dragMarker (target: Marker, coord: Point) {
     const rold = this.markers.find(m => m.marker === target);
     if (!rold) {
       return;
     }
-
-    console.log('更新标记:', `old=${JSON.stringify(rold.info)}`, `updated=${JSON.stringify(updated)}`);
+    const updated: MarkerInfo = {
+      ...rold.info,
+      coords: coord,
+    };
+    console.log('移动标记:', `old=${JSON.stringify(rold.info)}`, `updated=${JSON.stringify(updated)}`);
     updateMarker(rold, updated, this.events.info);
     this._enableSaveButton(true);
   }
 
-  private _removeMarker (arg: MarkerWithInfo) {
-    const idx = this.markers.findIndex(m => m.marker === arg.marker);
+  private _removeMarker (arg: Marker) {
+    const idx = this.markers.findIndex(m => m.marker === arg);
     if (idx < 0) {
       return;
     }
 
-    console.log('删除标记: ', JSON.stringify(arg.info));
-    arg.marker.remove();
+    console.log('删除标记: ', JSON.stringify(this.markers[idx].info));
+    arg.remove();
     this.markers.splice(idx, 1);
     this._enableSaveButton(true);
   }
