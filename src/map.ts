@@ -1,7 +1,9 @@
 import { customTileLayer } from './components/CustomTileLayer';
-import { MapInfo, MapInfoDetail } from './types';
+import { MapInfo, MapInfoDetail, ShowHideControl } from './types';
 import { loadMarkers } from './marker';
 import { errorSpan } from './globals';
+import { createShowHideButton } from './controls/showHide';
+import { leaflet } from './env';
 
 function parseNumPair (value: string): [number, number] | undefined {
   const parts = value.split(',');
@@ -65,45 +67,10 @@ function parseAttributes (element: HTMLElement) {
   const scale = Math.pow(2, mapInfo.tileBaseZoom);
 
   mapInfo.mapPoint = coords => {
-    return L.latLng(-coords.y / scale, coords.x / scale);
+    return leaflet().latLng(-coords.y / scale, coords.x / scale);
   };
 
   return mapInfo as MapInfoDetail;
-}
-
-interface ShowHideControl {
-  showMarkers?: () => void;
-  hideMarkers?: () => void;
-}
-
-function showHideButton (map: ReturnType<typeof L.map>, mapInfo: MapInfoDetail, control: ShowHideControl) {
-  return (L as any).easyButton({
-    position: 'topleft',
-    states: [
-      {
-        stateName: 'show',
-        icon: 'fa fa-eye',
-        title: '隐藏标记',
-        onClick: (btn: any) => {
-          if (control.hideMarkers) {
-            control.hideMarkers();
-            btn.state('hide');
-          }
-        },
-      },
-      {
-        stateName: 'hide',
-        icon: 'fa fa-eye-slash',
-        title: '显示标记',
-        onClick: (btn: any) => {
-          if (control.showMarkers) {
-            control.showMarkers();
-            btn.state('show');
-          }
-        },
-      },
-    ],
-  });
 }
 
 export async function initMap (element: HTMLElement) {
@@ -112,6 +79,7 @@ export async function initMap (element: HTMLElement) {
     element.append(errorSpan('地图的id或标签设置有误！'));
     return;
   }
+  const L = leaflet();
 
   console.log(`初始化地图: ${element.id}`);
 
@@ -147,12 +115,29 @@ export async function initMap (element: HTMLElement) {
 
   const { markerLoc, markers } = await loadMarkers(map, mapInfo);
 
-  for (const marker of markers) {
-    marker.addTo(map);
-  }
+  const showMarkers = () => {
+    for (const marker of markers) {
+      marker.addTo(map);
+    }
+  };
+
+  const hideMarkers = () => {
+    for (const marker of markers) {
+      marker.remove();
+    }
+  };
+
+  showMarkers();
 
   if (markerLoc) {
     console.log(`设置地图初始位置: ${mapInfo.initLoc} - ${markerLoc} (${mapInfo.initZoom})`);
     map.setView(markerLoc, mapInfo.initZoom);
   }
+
+  const showHideControl: ShowHideControl = {
+    showMarkers,
+    hideMarkers,
+  };
+
+  createShowHideButton(map, mapInfo, showHideControl).addTo(map);
 }

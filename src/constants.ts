@@ -23,3 +23,7 @@ export const API_CONFIG = {
   REVISION_PROPS: 'content',
   REVISION_LIMIT: '1',
 } as const;
+
+export const VISUAL = {
+  ICON_SIZE: 50,
+};

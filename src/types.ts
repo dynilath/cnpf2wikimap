@@ -1,4 +1,4 @@
-import { LatLng } from 'leaflet';
+import type { LatLng } from 'leaflet';
 
 // 坐标接口
 export interface Coordinates {
@@ -33,19 +33,13 @@ export interface MarkerInfo {
   markerImage?: string;
 }
 
-// 图标信息接口
-export interface IconInfo {
-  url: string;
-  width: number;
-  height: number;
-}
-
-// 图标映射类型
-export type IconMap = { [iconName: string]: IconInfo | string };
-
 // API 查询数据接口
 export interface ApiQueryData {
   action: string;
   format: string;
   [key: string]: any;
+}
+export interface ShowHideControl {
+  showMarkers?: () => void;
+  hideMarkers?: () => void;
 }

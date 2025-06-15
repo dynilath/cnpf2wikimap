@@ -1,8 +1,9 @@
-import type { LatLng, Marker, MarkerOptions } from 'leaflet';
+import type { LatLng, Map, Marker, MarkerOptions } from 'leaflet';
 import { IconService } from './services/IconService';
 import { escapeInput } from './globals';
 import { Coordinates, MapInfo, MapInfoDetail, MarkerInfo } from './types';
 import { ApiService } from './services/ApiService';
+import { leaflet } from './env';
 
 function validMarker (data: any): data is MarkerInfo {
   return (
@@ -45,7 +46,7 @@ function pickMarkerLoc (markers: MarkerInfo[], mapInfo: MapInfoDetail): LatLng |
   return undefined;
 }
 
-export async function loadMarkers (map: ReturnType<typeof L.map>, mapInfo: MapInfoDetail) {
+export async function loadMarkers (map: Map, mapInfo: MapInfoDetail) {
   const rawMarkers = await fetchMarkerData(mapInfo);
   const markerLoc = pickMarkerLoc(rawMarkers, mapInfo);
   const markers = rawMarkers.map(marker => createMarker(marker, mapInfo));
@@ -54,7 +55,7 @@ export async function loadMarkers (map: ReturnType<typeof L.map>, mapInfo: MapIn
 
 export function createMarker (markerInfo: MarkerInfo, mapInfo: MapInfoDetail): Marker {
   const loc = mapInfo.mapPoint(markerInfo.coords);
-  const marker = L.marker(loc, {
+  const marker = leaflet().marker(loc, {
     // draggable: true,
     icon: IconService.getDefaultIcon(),
     contextmenu: true,
@@ -77,6 +78,10 @@ export function createMarker (markerInfo: MarkerInfo, mapInfo: MapInfoDetail): M
       },
     ],
   } as MarkerOptions) as Marker;
+
+  IconService.getMarkerIcon(markerInfo).then(icon => {
+    marker.setIcon(icon);
+  });
 
   marker.bindPopup(escapeInput(markerInfo.tooltip));
 

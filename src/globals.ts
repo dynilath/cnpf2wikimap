@@ -55,7 +55,7 @@ export function escapeInput (input: string): string {
  * 检查 Leaflet 是否已加载
  */
 function isLeafletLoaded (): boolean {
-  return typeof L !== 'undefined' && !!L.version && !!L.TileLayer;
+  return typeof window.L !== 'undefined' && !!window.L.version && !!window.L.TileLayer;
 }
 
 /**

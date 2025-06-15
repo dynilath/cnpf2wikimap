@@ -1,11 +1,15 @@
-import { initMap } from './map';
+import { setLeafletInstance } from './env';
 import { waitForLeaflet } from './globals';
+import { initMap } from './map';
 
 console.log('Loading interactive map module.');
 
 const loadedSet = new Set<string>();
 
 waitForLeaflet()
+  .then(() => {
+    setLeafletInstance(window.L);
+  })
   .then(() => {
     const mapElements = document.querySelectorAll(__MAP_CLASS__);
     mapElements.forEach(element => {
@@ -16,5 +20,5 @@ waitForLeaflet()
     });
   })
   .catch(error => {
-    console.error('加载时出错:', error);
+    console.error('Error initializing interactive map:', error);
   });

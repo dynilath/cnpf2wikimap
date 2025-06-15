@@ -1,141 +1,99 @@
-import { IconInfo, IconMap } from '../types';
+import { MarkerInfo } from '../types';
 import { ApiService } from './ApiService';
-import { DEFAULT_ICON_CONFIG } from '../constants';
-import { waitForLeaflet } from '../globals';
+import { DEFAULT_ICON_CONFIG, VISUAL } from '../constants';
+import type { Icon } from 'leaflet';
+import { leaflet } from '../env';
 
-let _defaultIcon: ReturnType<typeof L.icon> | undefined;
+let _defaultIcon: Icon | undefined;
 
-waitForLeaflet().then(() => {
+function createDefaultIcon (): Icon {
+  if (_defaultIcon) {
+    return _defaultIcon;
+  }
+  const L = leaflet();
   _defaultIcon = L.icon(DEFAULT_ICON_CONFIG);
-});
+  return _defaultIcon;
+}
+
+interface IconEntry {
+  filename: string;
+  url: string;
+  width: number;
+  height: number;
+  icon: Icon;
+}
+
+const iconDict: Map<string, IconEntry> = new Map();
 
 /**
  * 图标管理服务
  */
 export class IconService {
-  private static iconMap: IconMap = {};
-
   /**
    * 获取默认图标
    */
   static getDefaultIcon () {
-    return _defaultIcon as ReturnType<typeof L.icon>;
+    return createDefaultIcon();
   }
 
   /**
-   * 预加载图标信息
+   * 获取标记图标
+   *
+   * 如果标记信息中没有指定图标，则返回默认图标。
+   * @param markerInfo 标记信息
+   * @returns 返回一个 Promise，解析为标记图标
    */
-  static async preloadIconInfo (iconNames: string[]): Promise<void> {
-    const iconsToLoad: string[] = [];
-
-    // 标记需要加载的图标
-    for (const iconName of iconNames) {
-      if (iconName && typeof this.iconMap[iconName] === 'undefined') {
-        this.iconMap[iconName] = 'ready';
-        iconsToLoad.push(iconName);
-      }
-    }
-
-    if (iconsToLoad.length === 0) {
-      return;
-    }
-
-    try {
-      const data = await ApiService.getImageInfo(iconsToLoad);
-
-      const pages = data.query.pages;
-      const normalized = data.query.normalized || [];
-      const namePairs: { [key: string]: string } = {};
-
-      // 处理标准化的文件名
-      for (let i = 0; i < iconsToLoad.length; i++) {
-        const file_name = `File:${iconsToLoad[i]}`;
-        const normalizedItem = normalized.find((item: any) => item.from === file_name);
-        namePairs[normalizedItem?.to ?? file_name] = iconsToLoad[i];
-      }
-
-      // 存储图标信息
-      for (const page of pages) {
-        if (!page.missing && page.imageinfo?.[0]) {
-          const iconName = namePairs[page.title];
-          const imageInfo = page.imageinfo[0];
-
-          this.iconMap[iconName] = {
-            url: imageInfo.url,
-            width: imageInfo.width,
-            height: imageInfo.height,
-          };
-        }
-      }
-    } catch (error) {
-      console.error('预加载图标信息失败:', error);
-      // 重置失败的图标为ready状态，以便稍后重试
-      for (const iconName of iconsToLoad) {
-        this.iconMap[iconName] = 'ready';
-      }
-    }
-  }
-
-  /**
-   * 获取自定义图标
-   */
-  static async getCustomIcon (iconName: string): Promise<any> {
-    if (!iconName) {
+  static async getMarkerIcon (markerInfo: MarkerInfo): Promise<Icon> {
+    if (!markerInfo.markerImage) {
       return this.getDefaultIcon();
     }
 
-    // 如果图标信息已经加载
-    const iconInfo = this.iconMap[iconName];
-    if (typeof iconInfo === 'object') {
-      return this.createIconFromInfo(iconInfo);
+    const iconInfo = iconDict.get(markerInfo.markerImage);
+    if (iconInfo) {
+      return iconInfo.icon;
     }
 
-    // 如果图标还未加载，尝试加载
-    try {
-      const data = await ApiService.getImageInfo(iconName);
-      const pages = data.query.pages;
+    const data = await ApiService.getImageInfo(markerInfo.markerImage);
+    const pages = data.query?.pages;
+    if (!pages || pages.length === 0) {
+      return this.getDefaultIcon();
+    }
 
-      for (const page of pages) {
-        if (page.missing) {
-          return this.getDefaultIcon();
-        }
-
-        if (page.imageinfo?.[0]) {
-          const imageInfo = page.imageinfo[0];
-          const iconInfo: IconInfo = {
-            url: imageInfo.url,
-            width: imageInfo.width,
-            height: imageInfo.height,
-          };
-
-          this.iconMap[iconName] = iconInfo;
-          return this.createIconFromInfo(iconInfo);
-        }
+    for (const page of pages) {
+      if (page.missing) {
+        return this.getDefaultIcon();
       }
-    } catch (error) {
-      console.error(`加载图标 ${iconName} 失败:`, error);
+
+      if (page.imageinfo?.[0]) {
+        const imageInfo = page.imageinfo[0];
+
+        const width = imageInfo.width;
+        const height = imageInfo.height;
+
+        const ratio = VISUAL.ICON_SIZE / Math.max(width, height);
+
+        const icon = leaflet().icon({
+          iconUrl: imageInfo.url,
+          iconSize: [width * ratio, height * ratio],
+          iconAnchor: [(width / 2) * ratio, (height / 2) * ratio],
+          popupAnchor: [0, (-height / 2) * ratio],
+          tooltipAnchor: [(width / 2) * ratio, 0],
+        });
+
+        const iconInfo: IconEntry = {
+          filename: markerInfo.markerImage,
+          url: imageInfo.url,
+          width,
+          height,
+          icon,
+        };
+
+        iconDict.set(markerInfo.markerImage, iconInfo);
+
+        return iconInfo.icon;
+      }
     }
 
     return this.getDefaultIcon();
-  }
-
-  /**
-   * 根据图标信息创建 Leaflet 图标
-   */
-  private static createIconFromInfo (iconInfo: IconInfo): any {
-    return L.icon({
-      iconUrl: iconInfo.url,
-      iconSize: [iconInfo.width, iconInfo.height],
-      iconAnchor: [iconInfo.width / 2, iconInfo.height / 2],
-      popupAnchor: [0, -iconInfo.height / 2],
-      tooltipAnchor: [iconInfo.width / 2, 0],
-    });
-  }
-
-  /**
-   * 清除图标缓存
-   */
-  static clearCache (): void {
-    this.iconMap = {};
   }
 }

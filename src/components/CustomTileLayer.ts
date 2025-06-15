@@ -1,14 +1,13 @@
-import { type TileLayerOptions, type Coords } from 'leaflet';
+import type { TileLayerOptions, Coords } from 'leaflet';
 import { huijiImageURL } from '../services/huijiStatic';
-import { waitForLeaflet } from '../globals';
 
 export interface CustomTileLayerOptions extends TileLayerOptions {
   tilePattern?: string;
 }
 
-let clazz: ReturnType<typeof createCustomTileLayerClass> | undefined;
+let _clazz: ReturnType<typeof initClass> | undefined;
 
-function createCustomTileLayerClass () {
+export function initClass (L: typeof window.L) {
   return class CustomTileLayer extends L.TileLayer {
     tilePattern: string;
 
@@ -32,19 +31,13 @@ function createCustomTileLayerClass () {
   };
 }
 
-waitForLeaflet().then(() => {
-  clazz = createCustomTileLayerClass();
-});
-
 /**
  * 创建自定义瓦片图层类
  * 这个函数确保只有在 Leaflet 完全加载后才创建类定义
  */
 export function customTileLayer (options?: CustomTileLayerOptions) {
-  if (!clazz) {
-    throw new Error(
-      'Leaflet is not loaded yet. Please ensure Leaflet is available before creating a custom tile layer.'
-    );
+  if (!_clazz) {
+    _clazz = initClass(window.L);
   }
-  return new clazz(options);
+  return new _clazz(options);
 }
