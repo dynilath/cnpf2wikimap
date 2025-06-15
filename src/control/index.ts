@@ -80,52 +80,48 @@ export class MapController {
     }
   }
 
-  enableContextMenu () {
-    this.contextMenuEnabled = true;
-  }
-
-  disableContextMenu () {
-    this.hideContextMenu();
-    this.contextMenuEnabled = false;
-  }
-
   private _saveButton: Control.EasyButton | null = null;
 
-  showSaveButton (buttonF: () => Control.EasyButton) {
-    if (!this._saveButton) {
-      this._saveButton = buttonF();
+  setSaveButton (arg0: Control.EasyButton) {
+    if (this._saveButton) {
+      this._saveButton.remove();
     }
-    this._saveButton.addTo(this.map);
-    this.enableSaveButton();
+    this._saveButton = arg0;
   }
 
   private editHappened = false;
   enableSaveButton (enable?: boolean) {
     if (enable !== undefined) this.editHappened = enable;
-    if (this._saveButton) {
-      if (this.editHappened) {
-        this._saveButton.enable();
-      } else {
-        this._saveButton.disable();
-      }
+    if (this.editHappened) {
+      this._saveButton?.enable();
+    } else {
+      this._saveButton?.disable();
     }
   }
 
   removeSaveButton () {
-    if (this._saveButton) {
-      this._saveButton.remove();
-    }
+    this._saveButton?.remove();
   }
 
-  enableMarkerDrag () {
+  enableEditing () {
+    this.contextMenuEnabled = true;
+
     for (const { marker } of this.markers) {
       marker.dragging?.enable();
     }
+
+    this._saveButton?.addTo(this.map);
   }
 
-  disableMarkerDrag () {
+  disableEditing () {
+    this.hideContextMenu();
+
+    this.contextMenuEnabled = false;
+
     for (const { marker } of this.markers) {
       marker.dragging?.disable();
     }
+
+    this._saveButton?.remove();
   }
 }

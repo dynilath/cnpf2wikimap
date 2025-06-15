@@ -26,11 +26,7 @@ export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: M
         icon: 'fa fa-pencil-square-o',
         title: '启用编辑模式',
         onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
-          control.enableContextMenu();
-          control.enableMarkerDrag();
-
-          control.showSaveButton(() => createSaveEditButton(map, mapInfo, control));
-
+          control.enableEditing();
           btn.state('close-edit');
         },
       },
@@ -39,11 +35,7 @@ export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: M
         icon: 'fa fa-times-circle',
         title: '关闭编辑模式',
         onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
-          control.disableContextMenu();
-          control.disableMarkerDrag();
-
-          control.removeSaveButton();
-
+          control.disableEditing();
           btn.state('default');
         },
       },

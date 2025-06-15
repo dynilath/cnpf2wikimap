@@ -4,7 +4,7 @@ import { loadMarkers } from './marker';
 import { errorSpan } from './globals';
 import { createShowHideButton } from './control/showHide';
 import { leaflet } from './env';
-import { createEditorButton } from './control/enableEdit';
+import { createEditorButton, createSaveEditButton } from './control/enableEdit';
 import { MapController } from './control';
 import { events } from './events';
 
@@ -155,4 +155,5 @@ export async function initMap (element: HTMLElement) {
 
   createShowHideButton(map, mapInfo, control).addTo(map);
   createEditorButton(map, mapInfo, control).addTo(map);
+  control.setSaveButton(createSaveEditButton(map, mapInfo, control));
 }
