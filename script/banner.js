@@ -18,6 +18,7 @@ export function createBanner(packageName, version, gitRepo) {
  * Copyright (c) ${new Date().getFullYear()} Da'Inihlus
  * License: MIT
  * ${gitRepo ? `Repository: ${gitRepo}` : ""}
+ * @preserve
  */
 `;
 }

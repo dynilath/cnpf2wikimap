@@ -8,6 +8,8 @@
     "build": "cross-env NODE_ENV=production rollup -c",
     "dev": "rollup -c -w",
     "build:dev": "rollup -c",
+    "build:all": "cross-env NODE_ENV=production BUILD_TARGET=all rollup -c",
+    "build:leaflet": "cross-env NODE_ENV=production BUILD_TARGET=leaflet rollup -c",
     "type-check": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1",
     "serve": "http-server -p 14001 -c-1 -o"

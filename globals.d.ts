@@ -1,5 +1,3 @@
-declare const L: typeof import('leaflet');
-
 declare global {
   $: JQueryStatic;
   jQuery: JQueryStatic;

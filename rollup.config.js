@@ -11,8 +11,10 @@ import { createBanner } from "./script/banner.js";
 const pkg = JSON.parse(fs.readFileSync("./package.json", "utf8"));
 
 const isProduction = process.env.NODE_ENV === "production";
+const buildTarget = process.env.BUILD_TARGET;
 
-export default defineConfig({
+// 主应用配置
+const mainConfig = {
   input: "src/index.ts",
   output: {
     file: "public/InteractiveMap.js",
@@ -45,7 +47,7 @@ export default defineConfig({
         format: {
           comments: (node, comment) => {
             const text = comment.value;
-            return text.includes("<nowiki>") || text.includes("</nowiki>") || text.includes("License");
+            return text.includes("<nowiki>") || text.includes("</nowiki>") || text.includes("@preserve");
           },
         },
         compress: {
@@ -53,4 +55,50 @@ export default defineConfig({
         },
       }),
   ].filter(Boolean),
+};
+
+// Leaflet 依赖库打包配置
+const leafletBundleConfig = {
+  input: "bundle/leaflet-bundle.js",
+  output: {
+    file: "public/leaflet-bundle.js",
+    format: "umd",
+    name: "LeafletBundle",
+    sourcemap: false,
+    banner: `//<nowiki>`,
+    footer: `\n//</nowiki>\n`,
+    globals: {
+      // 如果有其他全局依赖，在这里声明
+    },
+  },
+  external: [], // 不外部化任何依赖，全部打包
+  plugins: [
+    nodeResolve({
+      browser: true,
+      preferBuiltins: false,
+    }),
+    commonjs(),
+    terser({
+      format: {
+        comments: (node, comment) => {
+          const text = comment.value;
+          return text.includes("<nowiki>") || text.includes("</nowiki>") || text.includes("@preserve");
+        },
+      },
+    }),
+  ].filter(Boolean),
+};
+
+export default defineConfig(() => {
+  // 如果指定了构建目标，只构建对应的配置
+  if (buildTarget === "leaflet") {
+    return [leafletBundleConfig];
+  }
+
+  if (buildTarget === "all") {
+    return [mainConfig, leafletBundleConfig];
+  }
+
+  // 默认只构建构建主应用配置
+  return [mainConfig];
 });
