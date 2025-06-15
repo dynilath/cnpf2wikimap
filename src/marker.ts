@@ -86,6 +86,7 @@ export function updateMarker (old: MarkerWithInfo, updated: MarkerInfo, mapInfo:
     marker.closePopup();
     marker.unbindPopup();
     marker.bindPopup(escapeInput(updated.tooltip));
+    old.info.tooltip = updated.tooltip;
   }
 
   old.info.tag = updated.tag;
