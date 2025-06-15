@@ -127,14 +127,14 @@ export const ApiService = {
   /**
    * 保存页面内容
    */
-  savePageContent: async (pageName: string, content: string, summary: string = '更新地图标记信息'): Promise<any> => {
+  savePageContent: async (pageName: string, content: string, summary: string): Promise<any> => {
     return requestWithCallback(
       {
         format: 'json',
         action: 'edit',
         contentformat: 'application/json',
         title: pageName,
-        summary: `${summary} - 通过页面更新`,
+        summary: `${summary} - 通过 ${mediaWiki.config.get('wgPageName')} 页面更新`,
         text: content,
         minor: true,
         token: mediaWiki.user.tokens.get('csrfToken'),

@@ -41,7 +41,11 @@ export class MapController {
       }, [] as MarkerInfo[]);
       console.log('保存标记: ', info);
       try {
-        await ApiService.savePageContent(this.events.info.markerSource, JSON.stringify({ markers: info }));
+        await ApiService.savePageContent(
+          this.events.info.markerSource,
+          JSON.stringify({ markers: info }),
+          '更新地图标记信息'
+        );
       } catch (e) {
         console.error('保存标记失败: ', e);
         showInfo({ title: '保存标记失败', info: `${e?.message ?? e}`, buttons: { confirm: '确定' } });
