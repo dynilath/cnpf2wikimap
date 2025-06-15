@@ -1,9 +1,9 @@
-import { ShowHideControl } from '../types';
 import { MapInfoDetail } from '../types';
 import { leaflet } from '../env';
 import type { Map } from 'leaflet';
+import { MapController } from '.';
 
-export function createShowHideButton (map: Map, mapInfo: MapInfoDetail, control: ShowHideControl) {
+export function createShowHideButton (map: Map, mapInfo: MapInfoDetail, control: MapController) {
   return leaflet().easyButton({
     position: 'topleft',
     states: [
@@ -12,10 +12,8 @@ export function createShowHideButton (map: Map, mapInfo: MapInfoDetail, control:
         icon: 'fa fa-eye',
         title: '隐藏标记',
         onClick: (btn: any) => {
-          if (control.hideMarkers) {
-            control.hideMarkers();
-            btn.state('set-show');
-          }
+          control.hideMarkers();
+          btn.state('set-show');
         },
       },
       {
@@ -23,10 +21,8 @@ export function createShowHideButton (map: Map, mapInfo: MapInfoDetail, control:
         icon: 'fa fa-eye-slash',
         title: '显示标记',
         onClick: (btn: any) => {
-          if (control.showMarkers) {
-            control.showMarkers();
-            btn.state('set-hide');
-          }
+          control.showMarkers();
+          btn.state('set-hide');
         },
       },
     ],

@@ -1,7 +1,7 @@
-import type { LatLng } from 'leaflet';
+import type { LatLng, Marker } from 'leaflet';
 
 // 坐标接口
-export interface Coordinates {
+export interface Point {
   x: number;
   y: number;
 }
@@ -23,14 +23,20 @@ export interface MapInfo {
 
 // 地图信息详细接口，包含地图坐标转换方法
 export interface MapInfoDetail extends MapInfo {
-  mapPoint: (coords: Coordinates) => LatLng;
+  point2coord: (point: Point) => LatLng;
+  coord2point: (coord: LatLng) => Point;
 }
 
 export interface MarkerInfo {
-  coords: Coordinates;
-  tag: string;
+  coords: Point;
+  tag?: string;
   tooltip?: string;
   markerImage?: string;
+}
+
+export interface MarkerWithInfo {
+  marker: Marker;
+  info: MarkerInfo;
 }
 
 // API 查询数据接口
@@ -38,8 +44,4 @@ export interface ApiQueryData {
   action: string;
   format: string;
   [key: string]: any;
-}
-export interface ShowHideControl {
-  showMarkers?: () => void;
-  hideMarkers?: () => void;
 }

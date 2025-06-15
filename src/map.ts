@@ -1,9 +1,12 @@
 import { customTileLayer } from './components/CustomTileLayer';
-import { MapInfo, MapInfoDetail, ShowHideControl } from './types';
+import { MapInfo, MapInfoDetail } from './types';
 import { loadMarkers } from './marker';
 import { errorSpan } from './globals';
-import { createShowHideButton } from './controls/showHide';
+import { createShowHideButton } from './control/showHide';
 import { leaflet } from './env';
+import { createEditorButton } from './control/enableEdit';
+import { MapController } from './control';
+import { events } from './events';
 
 function parseNumPair (value: string): [number, number] | undefined {
   const parts = value.split(',');
@@ -51,7 +54,17 @@ function parseAttributes (element: HTMLElement) {
   assertAttr('bounds', () => retriveNumPairAttr('data-bounds'));
   mapInfo.zoomRange = retriveNumPairAttr('data-zoom-range');
 
-  mapInfo.markerSource = retriveStringAttr('data-marker') || `Data:${mapInfo.tileTemplate}.json`;
+  mapInfo.markerSource =
+    retriveStringAttr('data-marker') ||
+    `Data:${(() => {
+      const idx = mapInfo.tileTemplate.lastIndexOf('.');
+      if (idx === -1) {
+        return mapInfo.tileTemplate;
+      } else {
+        return mapInfo.tileTemplate.substring(0, idx);
+      }
+    })()}.json`;
+
   mapInfo.initLoc = (() => {
     const value = retriveStringAttr('data-init-loc');
     if (!value) return undefined;
@@ -66,8 +79,14 @@ function parseAttributes (element: HTMLElement) {
 
   const scale = Math.pow(2, mapInfo.tileBaseZoom);
 
-  mapInfo.mapPoint = coords => {
-    return leaflet().latLng(-coords.y / scale, coords.x / scale);
+  mapInfo.point2coord = point => {
+    return leaflet().latLng(-point.y / scale, point.x / scale);
+  };
+
+  mapInfo.coord2point = coord => {
+    const x = coord.lng * scale;
+    const y = -coord.lat * scale;
+    return { x, y };
   };
 
   return mapInfo as MapInfoDetail;
@@ -85,14 +104,14 @@ export async function initMap (element: HTMLElement) {
 
   const mapInfo = parseAttributes(element);
 
-  // 基准瓦片的缩放级别
-  const scale = Math.pow(2, mapInfo.tileBaseZoom);
-
-  const bounds = L.latLngBounds([-mapInfo.bounds[1] / scale, 0], [0, mapInfo.bounds[0] / scale]);
+  const bounds = L.latLngBounds(
+    mapInfo.point2coord({ x: 0, y: mapInfo.bounds[1] }),
+    mapInfo.point2coord({ x: mapInfo.bounds[0], y: 0 })
+  );
 
   console.log(`地图边界: ${bounds.toBBoxString()}`);
 
-  const layer = customTileLayer({
+  const tileLayer = customTileLayer({
     tileSize: L.point(mapInfo.tileSize),
     minZoom: mapInfo.zoomRange?.[0],
     maxZoom: mapInfo.zoomRange?.[1],
@@ -103,41 +122,37 @@ export async function initMap (element: HTMLElement) {
   const map = L.map(element, {
     crs: L.CRS.Simple,
     maxBounds: bounds,
+    contextmenu: true,
+    contextmenuItems: [
+      {
+        text: '<i class="fa fa-plus-circle" aria-hidden="true"/>&ensp;添加标记',
+        callback: function (event) {
+          const point = mapInfo.coord2point(event.latlng);
+          events.emit('startNewMarker', point);
+        },
+      },
+    ],
   });
 
-  layer.addTo(map);
+  tileLayer.addTo(map);
 
   map.fitBounds(bounds);
 
   if (Array.isArray(mapInfo.initLoc) && mapInfo.initLoc.length === 2) {
-    map.setView(mapInfo.mapPoint({ x: mapInfo.initLoc[0], y: mapInfo.initLoc[1] }), mapInfo.initZoom);
+    map.setView(mapInfo.point2coord({ x: mapInfo.initLoc[0], y: mapInfo.initLoc[1] }), mapInfo.initZoom);
   }
 
-  const { markerLoc, markers } = await loadMarkers(map, mapInfo);
+  const { markerLoc, markersWithInfo } = await loadMarkers(map, mapInfo);
 
-  const showMarkers = () => {
-    for (const marker of markers) {
-      marker.addTo(map);
-    }
-  };
+  const control = new MapController(markersWithInfo, map, mapInfo);
 
-  const hideMarkers = () => {
-    for (const marker of markers) {
-      marker.remove();
-    }
-  };
-
-  showMarkers();
+  control.showMarkers();
 
   if (markerLoc) {
     console.log(`设置地图初始位置: ${mapInfo.initLoc} - ${markerLoc} (${mapInfo.initZoom})`);
     map.setView(markerLoc, mapInfo.initZoom);
   }
 
-  const showHideControl: ShowHideControl = {
-    showMarkers,
-    hideMarkers,
-  };
-
-  createShowHideButton(map, mapInfo, showHideControl).addTo(map);
+  createShowHideButton(map, mapInfo, control).addTo(map);
+  createEditorButton(map, mapInfo, control).addTo(map);
 }

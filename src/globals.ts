@@ -1,3 +1,5 @@
+import { h } from './components/h';
+
 /**
  * 将字符串首字母大写
  */
@@ -18,20 +20,10 @@ export function parseNumPairParam (param: string): number[] {
  */
 export function escapeInput (input: string): string {
   // 首先转义 HTML 特殊字符
-  const escapeHtml = (text: string): string => {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  };
-
+  const escapeHtml = (text: string): string => h('div', { textContent: text }).innerHTML;
   // 创建链接元素的辅助函数
-  const createLink = (href: string, text: string): string => {
-    const link = document.createElement('a');
-    link.href = '/wiki/' + href;
-    link.textContent = text;
-    return link.outerHTML;
-  };
-
+  const createLink = (href: string, text: string): string =>
+    h('a', { href: '/wiki/' + href, textContent: text }).outerHTML;
   // 转义 HTML 特殊字符
   let escaped = escapeHtml(input);
 

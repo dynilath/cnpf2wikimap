@@ -1,9 +1,10 @@
 import type { LatLng, Map, Marker, MarkerOptions } from 'leaflet';
 import { IconService } from './services/IconService';
 import { escapeInput } from './globals';
-import { Coordinates, MapInfo, MapInfoDetail, MarkerInfo } from './types';
+import { MarkerWithInfo, MapInfo, MapInfoDetail, MarkerInfo } from './types';
 import { ApiService } from './services/ApiService';
 import { leaflet } from './env';
+import { events } from './events';
 
 function validMarker (data: any): data is MarkerInfo {
   return (
@@ -40,7 +41,7 @@ function pickMarkerLoc (markers: MarkerInfo[], mapInfo: MapInfoDetail): LatLng |
   if (typeof mapInfo.initLoc === 'string') {
     const marker = markers.find(m => m.tag === mapInfo.initLoc);
     if (marker) {
-      return mapInfo.mapPoint(marker.coords);
+      return mapInfo.point2coord(marker.coords);
     }
   }
   return undefined;
@@ -49,12 +50,50 @@ function pickMarkerLoc (markers: MarkerInfo[], mapInfo: MapInfoDetail): LatLng |
 export async function loadMarkers (map: Map, mapInfo: MapInfoDetail) {
   const rawMarkers = await fetchMarkerData(mapInfo);
   const markerLoc = pickMarkerLoc(rawMarkers, mapInfo);
-  const markers = rawMarkers.map(marker => createMarker(marker, mapInfo));
-  return { markerLoc, markers };
+  const { markers, markersWithInfo } = rawMarkers.reduce(
+    (pv, info) => {
+      const r = createMarker(info, mapInfo);
+
+      pv.markers.push(r.marker);
+      pv.markersWithInfo.push(r);
+      return pv;
+    },
+    { markers: [], markersWithInfo: [] } as {
+      markers: Marker[];
+      markersWithInfo: MarkerWithInfo[];
+    }
+  );
+
+  return {
+    markerLoc,
+    markers,
+    markersWithInfo,
+  };
 }
 
-export function createMarker (markerInfo: MarkerInfo, mapInfo: MapInfoDetail): Marker {
-  const loc = mapInfo.mapPoint(markerInfo.coords);
+export function updateMarker (old: MarkerWithInfo, updated: MarkerInfo, mapInfo: MapInfoDetail) {
+  const marker = old.marker;
+  marker.setLatLng(mapInfo.point2coord(updated.coords));
+  old.info.coords = updated.coords;
+  if (old.info.markerImage !== updated.markerImage) {
+    IconService.getMarkerIcon(updated).then(icon => {
+      marker.setIcon(icon);
+    });
+  }
+  old.info.markerImage = updated.markerImage;
+
+  if (old.info.tooltip !== updated.tooltip) {
+    marker.closePopup();
+    marker.unbindPopup();
+    marker.bindPopup(escapeInput(updated.tooltip));
+  }
+
+  old.info.tag = updated.tag;
+}
+
+export function createMarker (info: MarkerInfo, mapInfo: MapInfoDetail): MarkerWithInfo {
+  const loc = mapInfo.point2coord(info.coords);
+
   const marker = leaflet().marker(loc, {
     // draggable: true,
     icon: IconService.getDefaultIcon(),
@@ -62,28 +101,33 @@ export function createMarker (markerInfo: MarkerInfo, mapInfo: MapInfoDetail): M
     contextmenuInheritItems: false,
     contextmenuItems: [
       {
-        text: '<i class="fa fa-pencil-square" aria-hidden="true"></i>&ensp;编辑标记',
-        callback: function (event) {
-          this.mapMarkerEditor.loadMarker(event.relatedTarget);
-          this.mapMarkerEditor.show();
+        text: '<i class="fa fa-pencil-square" aria-hidden="true"/>&ensp;编辑标记',
+        callback: e => {
+          events.emit('editMarker', { marker, info });
         },
       },
       {
-        text: '<i class="fa fa-trash" aria-hidden="true"></i>&ensp;删除标记',
-        callback: function (event) {
-          this.removeMarker(this, this.mapInfo, event.relatedTarget);
-          this.mapInfo.needSave = true;
-          this.saveButton.enable();
+        text: '<i class="fa fa-trash" aria-hidden="true"/>&ensp;删除标记',
+        callback: e => {
+          events.emit('removeMarker', { marker, info });
         },
       },
     ],
   } as MarkerOptions) as Marker;
 
-  IconService.getMarkerIcon(markerInfo).then(icon => {
+  marker.on('dragend', e => {
+    const newCoords = mapInfo.coord2point((e.target as Marker).getLatLng());
+    events.emit('updateMarker', {
+      old: { marker, info },
+      updated: { ...info, coords: newCoords },
+    });
+  });
+
+  IconService.getMarkerIcon(info).then(icon => {
     marker.setIcon(icon);
   });
 
-  marker.bindPopup(escapeInput(markerInfo.tooltip));
+  marker.bindPopup(escapeInput(info.tooltip));
 
-  return marker;
+  return { marker, info };
 }
