@@ -8,7 +8,7 @@ export function createMarkerDetailEditor (initInfo: MarkerInfo): Promise<MarkerI
     id: 'markerTag',
     className: 'form-control',
     placeholder: '此处输入标记标签。此标签用于地图自动定位。',
-    textContent: initInfo.tag || '',
+    value: initInfo.tag || '',
   });
 
   const formImage = h('input', {
