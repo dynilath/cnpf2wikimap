@@ -4,7 +4,7 @@ import { escapeInput } from './globals';
 import { MarkerWithInfo, MapInfo, MapInfoDetail, MarkerInfo } from './types';
 import { ApiService } from './services/ApiService';
 import { leaflet } from './env';
-import { events } from './events';
+import { MapEvents } from './control/events';
 
 function validMarker (data: any): data is MarkerInfo {
   return (
@@ -47,12 +47,12 @@ function pickMarkerLoc (markers: MarkerInfo[], mapInfo: MapInfoDetail): LatLng |
   return undefined;
 }
 
-export async function loadMarkers (map: Map, mapInfo: MapInfoDetail) {
-  const rawMarkers = await fetchMarkerData(mapInfo);
-  const markerLoc = pickMarkerLoc(rawMarkers, mapInfo);
+export async function loadMarkers (map: Map, events: MapEvents) {
+  const rawMarkers = await fetchMarkerData(events.info);
+  const markerLoc = pickMarkerLoc(rawMarkers, events.info);
   const { markers, markersWithInfo } = rawMarkers.reduce(
     (pv, info) => {
-      const r = createMarker(info, mapInfo);
+      const r = createMarker(info, events);
 
       pv.markers.push(r.marker);
       pv.markersWithInfo.push(r);
@@ -91,8 +91,8 @@ export function updateMarker (old: MarkerWithInfo, updated: MarkerInfo, mapInfo:
   old.info.tag = updated.tag;
 }
 
-export function createMarker (info: MarkerInfo, mapInfo: MapInfoDetail): MarkerWithInfo {
-  const loc = mapInfo.point2coord(info.coords);
+export function createMarker (info: MarkerInfo, events: MapEvents): MarkerWithInfo {
+  const loc = events.info.point2coord(info.coords);
 
   const marker = leaflet().marker(loc, {
     // draggable: true,
@@ -116,7 +116,7 @@ export function createMarker (info: MarkerInfo, mapInfo: MapInfoDetail): MarkerW
   } as MarkerOptions) as Marker;
 
   marker.on('dragend', e => {
-    const newCoords = mapInfo.coord2point((e.target as Marker).getLatLng());
+    const newCoords = events.info.coord2point((e.target as Marker).getLatLng());
     events.emit('updateMarker', {
       old: { marker, info },
       updated: { ...info, coords: newCoords },

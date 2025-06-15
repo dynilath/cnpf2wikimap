@@ -1,9 +1,9 @@
 import type { Map } from 'leaflet';
 import { MapInfoDetail } from '../types';
 import { leaflet } from '../env';
-import { MapController } from '.';
+import { MapEvents } from './events';
 
-export function createSaveEditButton (map: Map, mapInfo: MapInfoDetail, control: MapController) {
+export function createSaveEditButton (map: Map, events: MapEvents) {
   return leaflet().easyButton({
     position: 'topright',
     states: [
@@ -11,13 +11,15 @@ export function createSaveEditButton (map: Map, mapInfo: MapInfoDetail, control:
         stateName: 'save-edit',
         icon: 'fa fa-floppy-o',
         title: '保存修改',
-        onClick: function (btn: L.Control.EasyButton, map: L.Map): void {},
+        onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
+          events.emit('saveEdit');
+        },
       },
     ],
   });
 }
 
-export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: MapController) {
+export function createEditorButton (map: Map, events: MapEvents) {
   return leaflet().easyButton({
     position: 'topright',
     states: [
@@ -26,7 +28,7 @@ export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: M
         icon: 'fa fa-pencil-square-o',
         title: '启用编辑模式',
         onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
-          control.enableEditing();
+          events.emit('enableEdit');
           btn.state('close-edit');
         },
       },
@@ -35,7 +37,7 @@ export function createEditorButton (map: Map, mapInfo: MapInfoDetail, control: M
         icon: 'fa fa-times-circle',
         title: '关闭编辑模式',
         onClick: function (btn: L.Control.EasyButton, map: L.Map): void {
-          control.disableEditing();
+          events.emit('disableEdit');
           btn.state('default');
         },
       },

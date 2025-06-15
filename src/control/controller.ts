@@ -1,13 +1,13 @@
 import type { Map, Control, Marker } from 'leaflet';
 import { MapInfoDetail, MarkerInfo, MarkerWithInfo, Point } from '../types';
-import { events } from '../events';
+import { MapEvents } from './events';
 import { createMarker, updateMarker } from '../marker';
 import { createMarkerInfoEditor } from '../components/MarkerInfoEditor';
 
 export class MapController {
   private contextMenuEnabled = false;
 
-  constructor (readonly markers: MarkerWithInfo[], readonly map: Map, readonly mapInfo: MapInfoDetail) {
+  constructor (readonly markers: MarkerWithInfo[], readonly map: Map, readonly events: MapEvents) {
     const ctxmenu = (map as any).contextmenu;
     const oldshowAt = ctxmenu._showAtPoint;
     const _this = this;
@@ -21,6 +21,11 @@ export class MapController {
     events.on('updateMarker', e => this._updateMarker(e.old.marker, e.updated));
     events.on('startNewMarker', e => this._editMarker({ coords: e }));
     events.on('editMarker', e => this._editMarker(e.info, e.marker));
+
+    events.on('enableEdit', () => this._enableEditing());
+    events.on('disableEdit', () => this._disableEditing());
+    events.on('hideMarkers', () => this._hideMarkers());
+    events.on('showMarkers', () => this._showMarkers());
   }
 
   private async _editMarker (info: MarkerInfo, _marker?: Marker) {
@@ -29,7 +34,7 @@ export class MapController {
     if (_marker) {
       this._updateMarker(_marker, inputs);
     } else {
-      const maker = await createMarker(inputs, this.mapInfo);
+      const maker = await createMarker(inputs, this.events);
       this.markers.push(maker);
       maker.marker.addTo(this.map);
       maker.marker.dragging?.enable();
@@ -45,8 +50,8 @@ export class MapController {
     }
 
     console.log('更新标记:', `old=${JSON.stringify(rold.info)}`, `updated=${JSON.stringify(updated)}`);
-    updateMarker(rold, updated, this.mapInfo);
-    this.enableSaveButton(true);
+    updateMarker(rold, updated, this.events.info);
+    this._enableSaveButton(true);
   }
 
   private _removeMarker (arg: MarkerWithInfo) {
@@ -58,7 +63,7 @@ export class MapController {
     console.log('删除标记: ', JSON.stringify(arg.info));
     arg.marker.remove();
     this.markers.splice(idx, 1);
-    this.enableSaveButton(true);
+    this._enableSaveButton(true);
   }
 
   private hideContextMenu () {
@@ -67,13 +72,13 @@ export class MapController {
     }
   }
 
-  showMarkers () {
+  private _showMarkers () {
     for (const { marker } of this.markers) {
       marker.addTo(this.map);
     }
   }
 
-  hideMarkers () {
+  private _hideMarkers () {
     this.hideContextMenu();
     for (const { marker } of this.markers) {
       marker.remove();
@@ -87,10 +92,11 @@ export class MapController {
       this._saveButton.remove();
     }
     this._saveButton = arg0;
+    this._enableSaveButton();
   }
 
   private editHappened = false;
-  enableSaveButton (enable?: boolean) {
+  private _enableSaveButton (enable?: boolean) {
     if (enable !== undefined) this.editHappened = enable;
     if (this.editHappened) {
       this._saveButton?.enable();
@@ -99,11 +105,7 @@ export class MapController {
     }
   }
 
-  removeSaveButton () {
-    this._saveButton?.remove();
-  }
-
-  enableEditing () {
+  private _enableEditing () {
     this.contextMenuEnabled = true;
 
     for (const { marker } of this.markers) {
@@ -113,7 +115,7 @@ export class MapController {
     this._saveButton?.addTo(this.map);
   }
 
-  disableEditing () {
+  private _disableEditing () {
     this.hideContextMenu();
 
     this.contextMenuEnabled = false;

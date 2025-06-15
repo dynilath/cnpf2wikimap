@@ -5,8 +5,8 @@ import { errorSpan } from './globals';
 import { createShowHideButton } from './control/showHide';
 import { leaflet } from './env';
 import { createEditorButton, createSaveEditButton } from './control/enableEdit';
-import { MapController } from './control';
-import { events } from './events';
+import { MapController } from './control/controller';
+import { MapEvents } from './control/events';
 
 function parseNumPair (value: string): [number, number] | undefined {
   const parts = value.split(',');
@@ -119,6 +119,8 @@ export async function initMap (element: HTMLElement) {
     tilePattern: mapInfo.tileTemplate,
   });
 
+  const events = new MapEvents(mapInfo);
+
   const map = L.map(element, {
     crs: L.CRS.Simple,
     maxBounds: bounds,
@@ -142,18 +144,18 @@ export async function initMap (element: HTMLElement) {
     map.setView(mapInfo.point2coord({ x: mapInfo.initLoc[0], y: mapInfo.initLoc[1] }), mapInfo.initZoom);
   }
 
-  const { markerLoc, markersWithInfo } = await loadMarkers(map, mapInfo);
+  const { markerLoc, markersWithInfo } = await loadMarkers(map, events);
 
-  const control = new MapController(markersWithInfo, map, mapInfo);
+  const control = new MapController(markersWithInfo, map, events);
 
-  control.showMarkers();
+  events.emit('showMarkers');
 
   if (markerLoc) {
     console.log(`设置地图初始位置: ${mapInfo.initLoc} - ${markerLoc} - Zoom=${mapInfo.initZoom}`);
     map.setView(markerLoc, mapInfo.initZoom);
   }
 
-  createShowHideButton(map, mapInfo, control).addTo(map);
-  createEditorButton(map, mapInfo, control).addTo(map);
-  control.setSaveButton(createSaveEditButton(map, mapInfo, control));
+  createShowHideButton(map, events).addTo(map);
+  createEditorButton(map, events).addTo(map);
+  control.setSaveButton(createSaveEditButton(map, events));
 }

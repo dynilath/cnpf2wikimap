@@ -1,29 +1,13 @@
 import { h } from './components/h';
 
 /**
- * 将字符串首字母大写
- */
-export function ucFirst (string: string): string {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
-/**
- * 解析数字对参数
- */
-export function parseNumPairParam (param: string): number[] {
-  const paramList = param.split(',');
-  return paramList.map(value => Number(value));
-}
-
-/**
  * 转义输入文本，处理内链和换行
  */
 export function escapeInput (input: string): string {
-  // 首先转义 HTML 特殊字符
   const escapeHtml = (text: string): string => h('div', { textContent: text }).innerHTML;
-  // 创建链接元素的辅助函数
   const createLink = (href: string, text: string): string =>
     h('a', { href: '/wiki/' + href, textContent: text }).outerHTML;
+
   // 转义 HTML 特殊字符
   let escaped = escapeHtml(input);
 
@@ -79,9 +63,9 @@ export async function waitForLeaflet (timeout: number = 5000): Promise<void> {
  * @returns HTML 字符串
  */
 export function errorSpan (message: string): HTMLSpanElement {
-  const span = document.createElement('span');
-  span.className = 'scribunto-error';
-  span.id = 'mw-scribunto-error-0';
-  span.textContent = message;
-  return span;
+  return h('span', {
+    className: 'scribunto-error',
+    id: 'mw-scribunto-error-0',
+    textContent: message,
+  });
 }
