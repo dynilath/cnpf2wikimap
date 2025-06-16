@@ -161,7 +161,7 @@ export async function initMap (element: HTMLElement) {
   if (bounds) map.fitBounds(bounds);
 
   if (Array.isArray(mapInfo.initLoc) && mapInfo.initLoc.length === 2) {
-    map.setView(mapInfo.point2coord({ x: mapInfo.initLoc[0], y: mapInfo.initLoc[1] }), mapInfo.initZoom);
+    map.flyTo(mapInfo.point2coord({ x: mapInfo.initLoc[0], y: mapInfo.initLoc[1] }), mapInfo.initZoom);
   }
 
   const { markerLoc, markersWithInfo } = await loadMarkers(map, events);
@@ -172,7 +172,7 @@ export async function initMap (element: HTMLElement) {
 
   if (markerLoc) {
     console.log(`设置地图初始位置: ${mapInfo.initLoc} - ${markerLoc} - Zoom=${mapInfo.initZoom}`);
-    map.setView(markerLoc, mapInfo.initZoom);
+    map.flyTo(markerLoc, mapInfo.initZoom);
   }
 
   createShowHideButton(map, events).addTo(map);
