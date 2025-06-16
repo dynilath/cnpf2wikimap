@@ -21,8 +21,8 @@ const mainConfig = {
     format: "iife",
     name: "InteractiveMap",
     sourcemap: isProduction ? false : "inline",
-    banner: `${createBanner(pkg.name, pkg.version, pkg.repository.url)}//<nowiki>`,
-    footer: `\n//</nowiki>\n`,
+    banner: `${createBanner(pkg.name, pkg.version, pkg.repository.url)}\n// @preserve <nowiki>\n`,
+    footer: `\n// @preserve </nowiki>\n`,
   },
   external: ["L", "mediaWiki", "jQuery"],
   plugins: [
@@ -42,18 +42,7 @@ const mainConfig = {
     copy({
       targets: [{ src: "resource/*", dest: "public" }],
     }),
-    isProduction &&
-      terser({
-        format: {
-          comments: (node, comment) => {
-            const text = comment.value;
-            return text.includes("<nowiki>") || text.includes("</nowiki>") || text.includes("@preserve");
-          },
-        },
-        compress: {
-          drop_console: false,
-        },
-      }),
+    isProduction && terser(),
   ].filter(Boolean),
 };
 
@@ -63,10 +52,9 @@ const leafletBundleConfig = {
   output: {
     file: "public/leaflet-bundle.js",
     format: "umd",
-    name: "LeafletBundle",
     sourcemap: false,
-    banner: `//<nowiki>`,
-    footer: `\n//</nowiki>\n`,
+    banner: `\n// @preserve <nowiki>\n`,
+    footer: `\n// @preserve </nowiki>\n`,
     globals: {
       // 如果有其他全局依赖，在这里声明
     },
@@ -78,14 +66,7 @@ const leafletBundleConfig = {
       preferBuiltins: false,
     }),
     commonjs(),
-    terser({
-      format: {
-        comments: (node, comment) => {
-          const text = comment.value;
-          return text.includes("<nowiki>") || text.includes("</nowiki>") || text.includes("@preserve");
-        },
-      },
-    }),
+    terser(),
   ].filter(Boolean),
 };
 
