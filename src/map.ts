@@ -62,7 +62,7 @@ function parseAttributes (element: HTMLElement) {
   assertAttr('tileBaseZoom', () => retriveNumberAttr('data-tile-base-zoom'));
   mapInfo.tileSize = retriveNumPairAttr('data-tile-size') || [256, 256];
 
-  assertAttr('bounds', () => retriveNumPairAttr('data-bounds'));
+  mapInfo.bounds = retriveNumPairAttr('data-bounds');
   mapInfo.zoomRange = retriveNumPairAttr('data-zoom-range');
 
   mapInfo.markerSource =
@@ -120,12 +120,16 @@ export async function initMap (element: HTMLElement) {
 
   const mapInfo = parseAttributes(element);
 
-  const bounds = L.latLngBounds(
-    mapInfo.point2coord({ x: 0, y: mapInfo.bounds[1] }),
-    mapInfo.point2coord({ x: mapInfo.bounds[0], y: 0 })
-  );
+  const bounds =
+    mapInfo.bounds &&
+    L.latLngBounds(
+      mapInfo.point2coord({ x: 0, y: mapInfo.bounds[1] }),
+      mapInfo.point2coord({ x: mapInfo.bounds[0], y: 0 })
+    );
 
-  console.log(`地图边界: ${bounds.toBBoxString()}`);
+  if (bounds) {
+    console.log(`地图边界: ${bounds.toBBoxString()}`);
+  }
 
   const tileLayer = customTileLayer({
     tileSize: L.point(mapInfo.tileSize),
@@ -154,7 +158,7 @@ export async function initMap (element: HTMLElement) {
 
   tileLayer.addTo(map);
 
-  map.fitBounds(bounds);
+  if (bounds) map.fitBounds(bounds);
 
   if (Array.isArray(mapInfo.initLoc) && mapInfo.initLoc.length === 2) {
     map.setView(mapInfo.point2coord({ x: mapInfo.initLoc[0], y: mapInfo.initLoc[1] }), mapInfo.initZoom);
