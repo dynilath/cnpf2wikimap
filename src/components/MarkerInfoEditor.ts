@@ -1,5 +1,6 @@
 import { MarkerInfo } from '../types';
 import { h } from './h';
+import { modal } from './modal';
 
 export function createMarkerDetailEditor (initInfo: MarkerInfo): Promise<MarkerInfo> {
   const result = { ...initInfo };
@@ -88,25 +89,20 @@ export function createMarkerDetailEditor (initInfo: MarkerInfo): Promise<MarkerI
                 result.tooltip = tooltip || undefined;
 
                 resolve(result);
-                el.addEventListener('transitionend', () => el.remove());
-                ($(el) as any).modal('hide');
+                modal.hide(el);
               },
             }),
             h('button', {
               type: 'button',
               className: 'btn btn-secondary',
               textContent: '关闭',
-              onclick: () => {
-                el.addEventListener('transitionend', () => el.remove());
-                ($(el) as any).modal('hide');
-              },
+              onclick: () => modal.hide(el),
             })
           )
         )
       )
     );
-
-    document.body.appendChild(el);
-    ($(el) as any).modal('show');
+    modal.show(el);
+    formTag.focus();
   });
 }

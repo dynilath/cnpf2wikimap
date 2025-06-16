@@ -1,4 +1,5 @@
 import { h } from './h';
+import { modal } from './modal';
 
 interface InfoResult {
   confirm?: boolean;
@@ -48,8 +49,7 @@ export async function showInfo (options: InfoOptions): Promise<InfoResult> {
                 className: 'btn btn-primary',
                 onclick: () => {
                   resolve({ confirm: true });
-                  el.addEventListener('transitionend', () => el.remove());
-                  ($(el) as any).modal('hide');
+                  modal.hide(el);
                 },
               },
               options?.buttons.confirm || '确认'
@@ -62,8 +62,7 @@ export async function showInfo (options: InfoOptions): Promise<InfoResult> {
                   className: 'btn btn-secondary',
                   onclick: () => {
                     resolve({ cancel: true });
-                    el.addEventListener('transitionend', () => el.remove());
-                    ($(el) as any).modal('hide');
+                    modal.hide(el);
                   },
                 },
                 options.buttons.cancel
@@ -72,8 +71,6 @@ export async function showInfo (options: InfoOptions): Promise<InfoResult> {
         )
       )
     );
-
-    document.body.appendChild(el);
-    ($(el) as any).modal('show');
+    modal.show(el);
   });
 }

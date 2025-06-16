@@ -4,9 +4,6 @@ export function h<key extends keyof HTMLElementTagNameMap> (
     id?: HTMLElement['id'];
     classList?: DOMTokenList | string[];
     className?: HTMLElement['className'];
-    role?: HTMLElement['role'];
-    style?: HTMLElement['style'];
-    type?: string;
     [key: string]: any; // 允许其他属性
   } = {},
   ...children: (string | HTMLElement | undefined)[]
