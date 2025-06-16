@@ -6,13 +6,10 @@ export const CSS_CLASSES = {
 // 默认图标配置
 export const DEFAULT_ICON_CONFIG = {
   iconUrl: 'https://huiji-public.huijistatic.com/warframe/uploads/7/7a/Marker-icon.png',
-  shadowUrl: 'https://huiji-public.huijistatic.com/warframe/uploads/d/d4/Marker-shadow.png',
-  iconSize: [25, 41] as [number, number],
-  shadowSize: [41, 41] as [number, number],
-  iconAnchor: [12, 41] as [number, number],
-  shadowAnchor: [12, 41] as [number, number],
-  popupAnchor: [0, -41] as [number, number],
-  tooltipAnchor: [12, -30] as [number, number],
+  iconSize: [15, 24.6] as [number, number],
+  iconAnchor: [7.5, 24.6] as [number, number],
+  popupAnchor: [0, -24.6] as [number, number],
+  tooltipAnchor: [7.5, -18] as [number, number],
 } as const;
 
 // API 相关常量
