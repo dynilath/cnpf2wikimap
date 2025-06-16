@@ -6,6 +6,11 @@ import { ApiService } from './services/ApiService';
 import { leaflet } from './env';
 import { MapEvents } from './control/events';
 
+/**
+ * 验证数据是否为有效的标记信息
+ * @param data 需要验证的数据对象
+ * @returns 如果数据符合 MarkerInfo 格式返回 true，否则返回 false
+ */
 function validMarker (data: any): data is MarkerInfo {
   return (
     data &&
@@ -20,6 +25,11 @@ function validMarker (data: any): data is MarkerInfo {
   );
 }
 
+/**
+ * 从 API 获取标记数据
+ * @param mapInfo 地图信息对象，包含标记数据源
+ * @returns Promise，解析为标记信息数组，获取失败时返回空数组
+ */
 async function fetchMarkerData (mapInfo: MapInfo) {
   try {
     const data = await ApiService.getPageJSON(mapInfo.markerSource);
@@ -37,6 +47,12 @@ async function fetchMarkerData (mapInfo: MapInfo) {
   return [];
 }
 
+/**
+ * 根据初始位置配置选择标记位置
+ * @param markers 标记信息数组
+ * @param mapInfo 地图详细信息，包含初始位置配置
+ * @returns 找到匹配标记时返回其坐标，否则返回 undefined
+ */
 function pickMarkerLoc (markers: MarkerInfo[], mapInfo: MapInfoDetail): LatLng | undefined {
   if (typeof mapInfo.initLoc === 'string') {
     const marker = markers.find(m => m.tag === mapInfo.initLoc);
@@ -47,6 +63,12 @@ function pickMarkerLoc (markers: MarkerInfo[], mapInfo: MapInfoDetail): LatLng |
   return undefined;
 }
 
+/**
+ * 加载并创建地图标记
+ * @param map Leaflet 地图实例
+ * @param events 地图事件处理器，包含地图信息和事件方法
+ * @returns 无返回值，直接在地图上添加标记并设置视图
+ */
 export async function loadMarkers (map: Map, events: MapEvents) {
   const rawMarkers = await fetchMarkerData(events.info);
   const markerLoc = pickMarkerLoc(rawMarkers, events.info);
@@ -71,6 +93,13 @@ export async function loadMarkers (map: Map, events: MapEvents) {
   };
 }
 
+/**
+ * 更新已存在的标记信息和位置
+ * @param old 原有的标记对象（包含标记实例和信息）
+ * @param updated 更新后的标记信息
+ * @param mapInfo 地图详细信息，用于坐标转换
+ * @returns 无返回值，直接更新传入的标记对象
+ */
 export function updateMarker (old: MarkerWithInfo, updated: MarkerInfo, mapInfo: MapInfoDetail) {
   const marker = old.marker;
   marker.setLatLng(mapInfo.point2coord(updated.coords));
@@ -92,6 +121,12 @@ export function updateMarker (old: MarkerWithInfo, updated: MarkerInfo, mapInfo:
   old.info.tag = updated.tag;
 }
 
+/**
+ * 创建新的地图标记
+ * @param info 标记信息，包含坐标、标签、提示文本等
+ * @param events 地图事件处理器，用于坐标转换和事件绑定
+ * @returns 包含 Leaflet 标记实例和信息的组合对象
+ */
 export function createMarker (info: MarkerInfo, events: MapEvents): MarkerWithInfo {
   const loc = events.info.point2coord(info.coords);
 

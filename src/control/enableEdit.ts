@@ -1,8 +1,13 @@
 import type { Map } from 'leaflet';
-import { MapInfoDetail } from '../types';
 import { leaflet } from '../env';
 import { MapEvents } from './events';
 
+/**
+ * 创建保存编辑的按钮
+ * @param map Leaflet 地图实例
+ * @param events 地图事件处理器，用于触发保存编辑事件
+ * @returns Leaflet EasyButton 实例，用于保存标记编辑
+ */
 export function createSaveEditButton (map: Map, events: MapEvents) {
   return leaflet().easyButton({
     position: 'topright',
@@ -19,6 +24,12 @@ export function createSaveEditButton (map: Map, events: MapEvents) {
   });
 }
 
+/**
+ * 创建编辑模式切换按钮
+ * @param map Leaflet 地图实例
+ * @param events 地图事件处理器，用于触发启用/禁用编辑事件
+ * @returns Leaflet EasyButton 实例，具有启用和关闭编辑模式两种状态
+ */
 export function createEditorButton (map: Map, events: MapEvents) {
   return leaflet().easyButton({
     position: 'topright',

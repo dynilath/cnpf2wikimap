@@ -2,6 +2,11 @@ import { MarkerInfo } from '../types';
 import { h } from './h';
 import { modal } from './modal';
 
+/**
+ * 创建标记详细信息编辑器
+ * @param initInfo 初始标记信息，用于预填充表单
+ * @returns Promise，解析为用户编辑后的标记信息对象
+ */
 export function createMarkerDetailEditor (initInfo: MarkerInfo): Promise<MarkerInfo> {
   const result = { ...initInfo };
 

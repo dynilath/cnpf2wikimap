@@ -6,7 +6,11 @@ import { leaflet } from '../env';
 
 let _defaultIcon: Icon | undefined;
 
-function createDefaultIcon (): Icon {
+/**
+ * 创建默认图标实例
+ * @returns Leaflet Icon 实例，使用默认图标配置
+ */
+function defaultIcon (): Icon {
   if (_defaultIcon) {
     return _defaultIcon;
   }
@@ -28,24 +32,24 @@ const iconDict: Map<string, IconEntry> = new Map();
 /**
  * 图标管理服务
  */
-export class IconService {
+export const IconService = {
   /**
    * 获取默认图标
+   * @returns Leaflet Icon 实例
    */
-  static getDefaultIcon () {
-    return createDefaultIcon();
-  }
-
+  getDefaultIcon: () => {
+    return defaultIcon();
+  },
   /**
    * 获取标记图标
+   * @param markerInfo 标记信息对象
+   * @returns Promise，解析为 Leaflet Icon 实例。如果标记信息中没有指定图标，则返回默认图标
    *
    * 如果标记信息中没有指定图标，则返回默认图标。
-   * @param markerInfo 标记信息
-   * @returns 返回一个 Promise，解析为标记图标
    */
-  static async getMarkerIcon (markerInfo: MarkerInfo): Promise<Icon> {
+  getMarkerIcon: async (markerInfo: MarkerInfo): Promise<Icon> => {
     if (!markerInfo.markerImage) {
-      return this.getDefaultIcon();
+      return defaultIcon();
     }
 
     const iconInfo = iconDict.get(markerInfo.markerImage);
@@ -56,12 +60,12 @@ export class IconService {
     const data = await ApiService.getImageInfo(markerInfo.markerImage);
     const pages = data.query?.pages;
     if (!pages || pages.length === 0) {
-      return this.getDefaultIcon();
+      return defaultIcon();
     }
 
     for (const page of pages) {
       if (page.missing) {
-        return this.getDefaultIcon();
+        return defaultIcon();
       }
 
       if (page.imageinfo?.[0]) {
@@ -94,6 +98,6 @@ export class IconService {
       }
     }
 
-    return this.getDefaultIcon();
-  }
-}
+    return defaultIcon();
+  },
+};

@@ -1,3 +1,10 @@
+/**
+ * 创建 HTML 元素的辅助函数
+ * @param tag HTML 标签名
+ * @param attrs 元素属性对象，支持 id、classList、className 等属性
+ * @param children 子元素，可以是字符串或 HTML 元素
+ * @returns 创建的 HTML 元素实例
+ */
 export function h<key extends keyof HTMLElementTagNameMap> (
   tag: key,
   attrs: {

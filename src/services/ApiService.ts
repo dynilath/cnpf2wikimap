@@ -3,6 +3,10 @@ import { ApiQueryData } from '../types';
 
 /**
  * 发送请求并处理回调
+ * @param queryData API 查询数据对象
+ * @param reqType 请求类型，GET 或 POST，默认为 GET
+ * @returns Promise，解析为 API 响应数据
+ * @throws 网络错误、超时或 API 错误时抛出异常
  */
 async function requestWithCallback<T = any> (queryData: ApiQueryData, reqType: 'GET' | 'POST' = 'GET'): Promise<T> {
   try {
@@ -67,6 +71,8 @@ async function requestWithCallback<T = any> (queryData: ApiQueryData, reqType: '
 export const ApiService = {
   /**
    * 获取图片信息
+   * @param imageName 图片文件名（单个字符串）或图片文件名数组
+   * @returns Promise，解析为包含图片信息的 API 响应数据
    */
   getImageInfo: async (imageName: string | string[]): Promise<any> => {
     const fName = n => `File:${n}`;
@@ -81,10 +87,10 @@ export const ApiService = {
       iiprop: API_CONFIG.IMAGE_INFO_PROPS,
     });
   },
-
   /**
    * 获取页面内容
    * @param pageName 页面名称
+   * @returns Promise，解析为包含页面版本内容的 API 响应数据
    */
   getPageContent: async (pageName: string): Promise<any> => {
     return requestWithCallback({
@@ -97,11 +103,11 @@ export const ApiService = {
       rvlimit: API_CONFIG.REVISION_LIMIT,
     });
   },
-
   /**
    * 获取页面的 JSON 数据
    * @param pageName 页面名称
-   * @returns 返回页面的 JSON 数据
+   * @returns Promise，解析为页面内容的 JSON 数据
+   * @throws 当页面不存在或没有内容时抛出异常
    *
    * 注意：此方法与 getPageContent 类似，但返回的数据格式为 JSON。
    */
@@ -123,9 +129,12 @@ export const ApiService = {
     const data = JSON.parse(page.revisions[0].content);
     return data;
   },
-
   /**
    * 保存页面内容
+   * @param pageName 页面名称
+   * @param content 页面内容字符串
+   * @param summary 编辑摘要
+   * @returns Promise，解析为保存操作的 API 响应数据
    */
   savePageContent: async (pageName: string, content: string, summary: string): Promise<any> => {
     return requestWithCallback(

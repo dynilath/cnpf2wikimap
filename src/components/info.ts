@@ -12,6 +12,12 @@ interface InfoOptions {
   buttons?: { confirm?: string; cancel?: string };
 }
 
+/**
+ * 显示信息对话框
+ * @param options 对话框选项，包含信息内容、标题和按钮文本
+ * @returns Promise，解析为用户操作结果对象
+ * @throws 当选项为空或缺少必需内容时抛出异常
+ */
 export async function showInfo (options: InfoOptions): Promise<InfoResult> {
   if (!options || (!options.info && !options.title)) {
     throw new Error('showInfo: options must contain either info or title');

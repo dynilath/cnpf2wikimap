@@ -8,6 +8,11 @@ import { createEditorButton, createSaveEditButton } from './control/enableEdit';
 import { MapController } from './control/controller';
 import { MapEvents } from './control/events';
 
+/**
+ * 解析数字对字符串为元组
+ * @param value 格式为 "数字1,数字2" 的字符串
+ * @returns 解析成功返回 [number, number] 元组，失败返回 undefined
+ */
 function parseNumPair (value: string): [number, number] | undefined {
   const parts = value.split(',');
   const value1 = parseFloat(parts[0]);
@@ -18,6 +23,12 @@ function parseNumPair (value: string): [number, number] | undefined {
   return [value1, value2];
 }
 
+/**
+ * 解析 HTML 元素的地图属性
+ * @param element 包含地图配置属性的 HTML 元素
+ * @returns 解析后的地图详细信息对象
+ * @throws 当必需属性缺失或格式错误时抛出异常
+ */
 function parseAttributes (element: HTMLElement) {
   const attr = element.attributes;
 
@@ -92,6 +103,11 @@ function parseAttributes (element: HTMLElement) {
   return mapInfo as MapInfoDetail;
 }
 
+/**
+ * 初始化交互式地图
+ * @param element 用于渲染地图的 HTML 元素，必须是带有 id 的 div 元素
+ * @returns 无返回值，如果元素不符合要求会在元素内显示错误信息
+ */
 export async function initMap (element: HTMLElement) {
   if (!element.id || element.tagName !== 'DIV') {
     element.innerHTML = '';

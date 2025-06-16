@@ -2,6 +2,8 @@ import { h } from './components/h';
 
 /**
  * 转义输入文本，处理内链和换行
+ * @param input 需要转义的输入文本
+ * @returns 转义后的 HTML 字符串，支持内链格式 [[页面]] 或 [[页面|显示文本]] 和换行转换
  */
 export function escapeInput (input: string): string {
   const escapeHtml = (text: string): string => h('div', { textContent: text }).innerHTML;
@@ -29,6 +31,7 @@ export function escapeInput (input: string): string {
 
 /**
  * 检查 Leaflet 是否已加载
+ * @returns 如果 Leaflet 已加载且版本和组件可用则返回 true，否则返回 false
  */
 function isLeafletLoaded (): boolean {
   return typeof window.L !== 'undefined' && !!window.L.version && !!window.L.TileLayer;
@@ -36,6 +39,8 @@ function isLeafletLoaded (): boolean {
 
 /**
  * 等待 Leaflet 加载完成
+ * @param timeout 超时时间（毫秒），默认 5000ms
+ * @returns Promise，在 Leaflet 加载完成时 resolve，超时时 reject
  */
 export async function waitForLeaflet (timeout: number = 5000): Promise<void> {
   return new Promise((resolve, reject) => {
