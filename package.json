@@ -5,8 +5,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "cross-env NODE_ENV=production rollup -c",
+    "build": "pnpm run version && pnpm run build:prod",
     "dev": "rollup -c -w",
+    "version": "node ./script/auto-semver.cjs",
+    "build:prod": "cross-env NODE_ENV=production rollup -c",
     "build:dev": "rollup -c",
     "build:all": "cross-env NODE_ENV=production BUILD_TARGET=all rollup -c",
     "build:leaflet": "cross-env NODE_ENV=production BUILD_TARGET=leaflet rollup -c",
